@@ -18,10 +18,11 @@ def upload_image():
         image_uuid = str(uuid.uuid4())
         new_image_filename = image_uuid + image_extension
         image_file.filename = new_image_filename
-        print(image_file)
-        image_file.save(IMAGES_DIR)
+        image_file.save(os.path.join(IMAGES_DIR, new_image_filename))
         
     return "Done"
 
 if __name__ == "__main__":
+    if not os.path.isdir("images"):
+        os.mkdir(IMAGES_DIR)
     app.run()
