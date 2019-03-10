@@ -1,64 +1,125 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for, send_file
 import os
 import uuid
 import hashlib
 import pymysql.cursors
+from functools import wraps
+import time
 
 app = Flask(__name__)
+app.secret_key = "super secret key"
 IMAGES_DIR = os.path.join(os.getcwd(), "images")
 
-connection = pymysql.connect(host='localhost',
-                             user='root',
-                             password='',
-                             db='finsta',
-                             charset='utf8mb4',
+connection = pymysql.connect(host="localhost",
+                             user="root",
+                             password="",
+                             db="finsta",
+                             charset="utf8mb4",
                              port=3306,
                              cursorclass=pymysql.cursors.DictCursor)
 
+def login_required(f):
+    @wraps(f)
+    def dec(*args, **kwargs):
+        if not "username" in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return dec
+
 @app.route("/")
 def index():
+    if "username" in session:
+        return redirect(url_for("home"))
     return render_template("index.html")
 
-@app.route("/upload", methods=['GET'])
+@app.route("/home")
+@login_required
+def home():
+    return render_template("home.html", username=session["username"])
+
+@app.route("/upload", methods=["GET"])
+@login_required
 def upload():
     return render_template("upload.html")
 
-@app.route("/login", methods=['GET'])
+@app.route("/images", methods=["GET"])
+@login_required
+def images():
+    query = "SELECT * FROM photo"
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+    data = cursor.fetchall()
+    return render_template("images.html", images=data)
+
+@app.route("/image/<image_name>", methods=["GET"])
+def image(image_name):
+    image_location = os.path.join(IMAGES_DIR, image_name)
+    if os.path.isfile(image_location):
+        return send_file(image_location, mimetype="image/jpg")
+
+@app.route("/login", methods=["GET"])
 def login():
     return render_template("login.html")
 
-@app.route("/register", methods=['GET'])
+@app.route("/register", methods=["GET"])
 def register():
     return render_template("register.html")
 
 @app.route("/loginAuth", methods=["POST"])
 def loginAuth():
-    return "logging in"
+    if request.form:
+        requestData = request.form
+        username = requestData["username"]
+        plaintextPasword = requestData["password"]
+        hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
+
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM person WHERE username = %s AND password = %s"
+            cursor.execute(query, (username, hashedPassword))
+        data = cursor.fetchone()
+        if data:
+            session["username"] = username
+            return redirect(url_for("home"))
+
+        error = "Incorrect username or password"
+        return render_template("login.html", error=error)
+
+    return "Failed to login"
 
 @app.route("/registerAuth", methods=["POST"])
 def registerAuth():
     if request.form:
         requestData = request.form
-        username = requestData['username']
-        plaintextPasword = requestData['password']
-        firstName = requestData['fname']
-        lastName = requestData['lname']
+        username = requestData["username"]
+        plaintextPasword = requestData["password"]
+        hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
+        firstName = requestData["fname"]
+        lastName = requestData["lname"]
+
         with connection.cursor() as cursor:
-            sql = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
-            cursor.execute(sql, (username, plaintextPasword, firstName, lastName))
+            query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
+            cursor.execute(query, (username, hashedPassword, firstName, lastName))
+
         return "Done registering"
     return "Failed to register"
 
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.pop("username")
+    return redirect("/")
+
 @app.route("/uploadImage", methods=["POST"])
+@login_required
 def upload_image():
     if request.files:
-        image_file = request.files.get('imageToUpload', '')
+        image_file = request.files.get("imageToUpload", "")
         image_name = image_file.filename
-        image_extension = os.path.splitext(image_name)[1]
-        image_uuid = str(uuid.uuid4())
-        new_image_filename = image_uuid + image_extension
-        image_file.save(os.path.join(IMAGES_DIR, new_image_filename))
-        return "Uploaded image"
+        filepath = os.path.join(IMAGES_DIR, image_name)
+        image_file.save(filepath)
+        query = "INSERT INTO photo (timestamp, filePath) VALUES (%s, %s)"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
+        return redirect(url_for('upload'))
     else:
         return "Done"
 
