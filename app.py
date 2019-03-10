@@ -81,10 +81,11 @@ def loginAuth():
             session["username"] = username
             return redirect(url_for("home"))
 
-        error = "Incorrect username or password"
+        error = "Incorrect username or password."
         return render_template("login.html", error=error)
 
-    return "Failed to login"
+    error = "An unknown error has occurred. Please try again."
+    return render_template("login.html", error=error)
 
 @app.route("/registerAuth", methods=["POST"])
 def registerAuth():
@@ -95,13 +96,19 @@ def registerAuth():
         hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
         firstName = requestData["fname"]
         lastName = requestData["lname"]
+        
+        try:
+            with connection.cursor() as cursor:
+                query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
+                cursor.execute(query, (username, hashedPassword, firstName, lastName))
+        except pymysql.err.IntegrityError:
+            error = "%s is already taken." % (username)
+            return render_template('register.html', error=error)    
 
-        with connection.cursor() as cursor:
-            query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
-            cursor.execute(query, (username, hashedPassword, firstName, lastName))
+        return redirect(url_for("login"))
 
-        return "Done registering"
-    return "Failed to register"
+    error = "An error has occurred. Please try again."
+    return render_template("register.html", error=error)
 
 @app.route("/logout", methods=["GET"])
 def logout():
