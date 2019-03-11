@@ -126,9 +126,11 @@ def upload_image():
         query = "INSERT INTO photo (timestamp, filePath) VALUES (%s, %s)"
         with connection.cursor() as cursor:
             cursor.execute(query, (time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
-        return redirect(url_for('upload'))
+        message = "Image has been successfully uploaded."
+        return render_template("upload.html", message=message)
     else:
-        return "Done"
+        message = "Failed to upload image."
+        return render_template("upload.html", message=message)
 
 if __name__ == "__main__":
     if not os.path.isdir("images"):
