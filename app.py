@@ -16,7 +16,8 @@ connection = pymysql.connect(host="localhost",
                              db="finsta",
                              charset="utf8mb4",
                              port=3306,
-                             cursorclass=pymysql.cursors.DictCursor)
+                             cursorclass=pymysql.cursors.DictCursor,
+                             autocommit=True)
 
 def login_required(f):
     @wraps(f)
