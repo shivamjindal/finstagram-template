@@ -51,7 +51,8 @@ def upload():
 @app.route("/images", methods=["GET"])
 @login_required
 def images():
-    query = "SELECT * FROM photo"
+    #do everything in one query 
+    query = "SELECT DISTINCT Photo.photoID, photoOwner, timestamp, filePath, caption, allFollowers FROM Photo INNER JOIN Follow WHERE photoOwner = followerUsername AND acceptedfollow = TRUE ORDER BY Timestamp DESC" 
     with connection.cursor() as cursor:
         cursor.execute(query)
     data = cursor.fetchall()
