@@ -5,9 +5,19 @@
     <body>
         <h1>Image Gallery</h1>
         <div>
-            {% for image in images %}
+              <!–– begining of code to read thru images 
+              Finstagram shows the user the photoID, photoOwner’s name, and caption of photos that are visible to the her, arranged inreverse chronological order. 
+              
+              example insert: 
+              INSERT INTO Photo VALUES (0000001, 123, '2018-12-12 09:30:20' , "images/TestImages/testfirst123.jpg", "my caption is yolo", TRUE)
+              INSERT INTO Photo VALUES (0000002, 123, '2019-01-12 19:30:20', "/Users/rebeccafisch/Desktop/TestImages/testfirst123.jpg", "this is a cat", TRUE)
+              ––>
 
-            <img src="/image/{{image.filePath}}" width="300"/>
+            {% for image in images %} 
+                <h3>Image below by: {{ image.photoOwner  }}</h3>
+                <img src="/image/{{image.filePath}}" width="300"/>
+                <p> photoID: {{ image.photoID }} <br> caption: {{ image.caption }}
+                <br> timestamp: {{ image.timestamp }} </p>
             {% endfor %}
         </div>
         <a href="/">Go back</a>

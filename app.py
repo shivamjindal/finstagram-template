@@ -43,6 +43,11 @@ def home():
 def upload():
     return render_template("upload.html")
 
+#images which get passed to the image gallery 
+#this send the image with all of it's data too
+#A photo is visible to a user U if either 
+#   U has been accepted as a follower by teh owner of the photo or
+#   The photo is shared with a CloseFriendGroup to which U belongs
 @app.route("/images", methods=["GET"])
 @login_required
 def images():
@@ -57,6 +62,8 @@ def image(image_name):
     image_location = os.path.join(IMAGES_DIR, image_name)
     if os.path.isfile(image_location):
         return send_file(image_location, mimetype="image/jpg")
+
+
 
 @app.route("/login", methods=["GET"])
 def login():
@@ -134,6 +141,7 @@ def upload_image():
         return render_template("upload.html", message=message)
 
 if __name__ == "__main__":
+    app.run(debug = True)
     if not os.path.isdir("images"):
         os.mkdir(IMAGES_DIR)
     app.run()
