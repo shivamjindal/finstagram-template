@@ -12,6 +12,7 @@ app.secret_key = "super secret key"
 IMAGES_DIR = os.path.join(os.getcwd(), "images")
 
 
+
 connection = pymysql.connect(host="localhost",
                              user="root",
                              password="root",
