@@ -7,6 +7,7 @@ from functools import wraps
 import time
 import insert_photo
 
+
 app = Flask(__name__)
 app.secret_key = "super secret key"
 IMAGES_DIR = os.path.join(os.getcwd(), "images")
@@ -19,6 +20,7 @@ connection = pymysql.connect(host="localhost",
                              port=8889,
                              cursorclass=pymysql.cursors.DictCursor,
                              autocommit=True)
+import tools
 
 def login_required(f):
     @wraps(f)
@@ -42,7 +44,7 @@ def home():
 @app.route("/upload", methods=["GET"])
 @login_required
 def upload():
-    return render_template("upload.html")
+    return render_template("upload.html", user_groups=tools._get_user_groups())
 
 #images which get passed to the image gallery 
 #this send the image with all of it's data too
