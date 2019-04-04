@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Follow</title>
+    <style type="text/css">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Follow</h1>
+        <div>
+            <form action="/follow_req" method="POST">
+                <input type="text" name="username" placeholder="Username" required/>
+                <br/>
+                <input type="submit" value="Follow">
+            </form>
+        </div>
+        {% if error %}
+            {{ error }}
+        {% endif %}
+        {% if followReq %}
+            <div>
+                <table>
+                    {% for follower in followReq %}
+                       <tr>
+                           <td>{{ follower.followerUsername }}</td>
+                          <td>
+                              <form action="/followAction" method="POST">
+                                  <input type="hidden" name="response" value="accept">
+                                  <input type="hidden" name="username" value="{{ follower.followerUsername }}">
+                                  <input type="submit" value="Accept">
+                              </form>
+                          </td>
+                           <td>
+                               <form action="/followAction" method="POST">
+                                   <input type="hidden" name="response" value="decline">
+                                   <input type="hidden" name="username" value="{{ follower.followerUsername }}">
+                                   <input type="submit" value="Decline">
+                               </form>
+                           </td>
+
+                       </tr>
+                    {% endfor %}
+                    </table>
+            </div>
+        {% endif %}
+    <br>
+        <a href="/">Go back</a>
+
+</body>
+</html>
