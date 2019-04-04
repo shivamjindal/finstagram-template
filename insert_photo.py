@@ -5,15 +5,16 @@ def upload_image():
     if request.files:
         image_file = request.files.get("imageToUpload", "")
         all_followers = int(request.form.get("allFollowers") != None)
+        caption = request.form.get("caption")
         image_name = image_file.filename
         filepath = os.path.join(IMAGES_DIR, image_name)
         image_file.save(filepath)
 
-        query = "INSERT INTO photo (photoOwner, timestamp, filePath, allFollowers) VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO photo (photoOwner, timestamp, filePath, allFollowers, caption) VALUES (%s, %s, %s, %s, %s)"
         with connection.cursor() as cursor:
-            cursor.execute(query, (session["username"], time.strftime('%Y-%m-%d %H:%M:%S'), image_name, all_followers))
+            cursor.execute(query, (session["username"], time.strftime('%Y-%m-%d %H:%M:%S'), image_name, all_followers, caption))
             photo_id = cursor.lastrowid
-            # print("1234 EXEC", cursor._executed, "RESULT", photo_id)
+            print("1234 EXEC", cursor._executed, "\nRESULT", photo_id)
 
 
         # if not all_followers:

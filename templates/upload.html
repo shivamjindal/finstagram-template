@@ -10,7 +10,12 @@
                 <br/>
                 <input type="submit" value="Upload">
                 <input type="checkbox" name="allFollowers" value="allFollowers">Post to All Followers<br>
-
+                <textarea name="caption" value="caption" placeholder="Enter Caption Here"></textarea>
+                <div id = 'closeFriendsGroupSelector' style="">
+                    {% for group in user_groups %}
+                    <input type="checkbox" name={{group.groupName}} value={{group.groupName}}>group.groupName<br>
+                    {% endfor %}
+                </div>
             </form>
         </div>
         {% if message %}
