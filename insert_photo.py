@@ -29,7 +29,7 @@ def upload_image():
                     cursor.execute(query, (groupName, groupOwner, photo_id))
 
         message = "Image has been successfully uploaded."
-        return render_template("upload.html", message=message, user_groups=tools._get_user_groups())
+        return render_template("upload.html", message=message, user_groups=tools._get_current_user_groups())
     else:
         message = "Failed to upload image."
-        return render_template("upload.html", message=message, user_groups=tools._get_user_groups())
+        return render_template("upload.html", message=message, user_groups=tools._get_current_user_groups())

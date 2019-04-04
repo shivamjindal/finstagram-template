@@ -46,7 +46,7 @@ def home():
 @app.route("/upload", methods=["GET"])
 @login_required
 def upload():
-    return render_template("upload.html", user_groups=tools._get_user_groups())
+    return render_template("upload.html", user_groups=tools._get_current_user_groups())
 
 @app.route("/follow", methods=["GET"])
 @login_required
