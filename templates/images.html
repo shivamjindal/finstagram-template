@@ -13,14 +13,12 @@
               INSERT INTO Photo VALUES (0000002, 123, '2019-01-12 19:30:20', "/Users/rebeccafisch/Desktop/TestImages/testfirst123.jpg", "this is a cat", TRUE)
               ––>
             {% for image in images %} 
-                <h3>Image below by: {{ image.photoOwner  }}</h3>
+                <h3>Image below by: {{ image.photoOwner }} </h3>
                 <img src="/image/{{image.filePath}}" width="300"/>
+
                 <p> photoID: {{ image.photoID }} <br> caption: {{ image.caption }}
                 <br> timestamp: {{ image.timestamp }} 
-                <br> people tagged: 
-                {% for tags in post %}  <!–– no idea if this is correct ––>
-                   First name: {{tags.fname}} Last name: {{tags.lname}} <br>
-                {% endfor %}
+          
             </p>
             {% endfor %}
         </div>

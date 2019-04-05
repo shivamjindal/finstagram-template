@@ -5,7 +5,6 @@ import hashlib
 import pymysql.cursors
 from functools import wraps
 import time
-import insert_photo
 
 
 app = Flask(__name__)
@@ -23,6 +22,8 @@ connection = pymysql.connect(host="localhost",
                              cursorclass=pymysql.cursors.DictCursor,
                              autocommit=True)
 import tools
+import insert_photo
+
 
 def login_required(f):
     @wraps(f)
@@ -65,20 +66,19 @@ def images():
     posts = {}
     username = session['username']
     #do everything in one query SELECT how to do a query on this elements username
-    query = "SELECT * FROM Photo JOIN Share USING (photoID) NATURAL JOIN Belong NATURAL JOIN CloseFriendGroup NATURAL Join Person WHERE (belong.username = %s and  Share.photoID = Photo.photoID) UNION (SELECT DISTINCT * FROM Photo NAUTRAL JOIN Follow  WHERE (photoOwner = %s ) or ( followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC" 
-    # query2 = "SELECT * FROM Photo NAUTRAL JOIN Person WHERE Person.username= Photo.photoOwner"
-    query2 = "SELECT * FROM Photo NAUTRAL JOIN Person WHERE Person.username = Photo.photoOwner AND acceptedTag = 1"
+    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC" 
+    query2 = "SELECT * FROM Photo JOIN Tag Using (photoID) JOIN Person USING (username) WHERE Photo.photoID = tag.photoID AND acceptedTag = 1"
     with connection.cursor() as cursor:
-        cursor.execute(query, username)
+        cursor.execute(query, (username, username, username))
     data = cursor.fetchall()
     for post in data:
-        with connection.cursor() as cursor:
-            cursor.execute(query2, post["photoID"])
-        tags = cursor.fetchall() 
-        posts[post]= tags #is this how i add the tags of each photo to the post? 
-
+         with connection.cursor() as cursor:
+            cursor.execute(query2)
+         tags = cursor.fetchall() 
+    #     print(tags)
+         posts[post]= tags #is this how i add the tags of each photo to the post? ,
     #print(data)
-    return render_template("images.html", images=data, posts= post)
+    return render_template("images.html", images=data, posts = posts)
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
