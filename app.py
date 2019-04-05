@@ -62,12 +62,23 @@ def follow_page():
 @app.route("/images", methods=["GET"])
 @login_required
 def images():
-    #do everything in one query 
-    query = "SELECT DISTINCT Photo.photoID, photoOwner, timestamp, filePath, caption, allFollowers FROM Photo INNER JOIN Follow WHERE photoOwner = followerUsername AND acceptedfollow = TRUE ORDER BY Timestamp DESC" 
+    posts = {}
+    username = session['username']
+    #do everything in one query SELECT how to do a query on this elements username
+    query = "SELECT * FROM Photo JOIN Share USING (photoID) NATURAL JOIN Belong NATURAL JOIN CloseFriendGroup NATURAL Join Person WHERE (belong.username = %s and  Share.photoID = Photo.photoID) UNION (SELECT DISTINCT * FROM Photo NAUTRAL JOIN Follow  WHERE (photoOwner = %s ) or ( followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC" 
+    # query2 = "SELECT * FROM Photo NAUTRAL JOIN Person WHERE Person.username= Photo.photoOwner"
+    query2 = "SELECT * FROM Photo NAUTRAL JOIN Person WHERE Person.username = Photo.photoOwner AND acceptedTag = 1"
     with connection.cursor() as cursor:
-        cursor.execute(query)
+        cursor.execute(query, username)
     data = cursor.fetchall()
-    return render_template("images.html", images=data)
+    for post in data:
+        with connection.cursor() as cursor:
+            cursor.execute(query2, post["photoID"])
+        
+        tags = cursor.fetchall() #i need to add this to the dictionary of posts
+
+    #print(data)
+    return render_template("images.html", images=data, posts= post)
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
