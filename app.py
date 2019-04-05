@@ -74,8 +74,8 @@ def images():
     for post in data:
         with connection.cursor() as cursor:
             cursor.execute(query2, post["photoID"])
-        
-        tags = cursor.fetchall() #i need to add this to the dictionary of posts
+        tags = cursor.fetchall() 
+        posts[post]= tags #is this how i add the tags of each photo to the post? 
 
     #print(data)
     return render_template("images.html", images=data, posts= post)

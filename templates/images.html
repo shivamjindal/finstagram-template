@@ -18,8 +18,8 @@
                 <p> photoID: {{ image.photoID }} <br> caption: {{ image.caption }}
                 <br> timestamp: {{ image.timestamp }} 
                 <br> people tagged: 
-                {% for post in posts %} 
-                   First name: {{post.fname}} Last name: {{post.lname}} <br>
+                {% for tags in post %}  <!–– no idea if this is correct ––>
+                   First name: {{tags.fname}} Last name: {{tags.lname}} <br>
                 {% endfor %}
             </p>
             {% endfor %}
