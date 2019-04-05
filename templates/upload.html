@@ -3,11 +3,25 @@
         <title>Image Upload</title>
     </head>
     <body>
+    <script>
+       function displayGroups(allFollowersSelector) {
+        var groups = document.getElementById("closeFriendsGroupSelector");
+        groups.style.display = allFollowersSelector.checked ? "none" : "block";
+    }
+
+    </script>
         <h1>Upload an Image!</h1>
         <div>
             <form action="/uploadImage" method="post" enctype="multipart/form-data">
                 <input type="file" name="imageToUpload" accept="image/*">
                 <br/>
+                <input type="checkbox" name="allFollowers" id = "allFollowersSelector" value="allFollowers" onclick="displayGroups(this)" checked>Post to All Followers<br>
+                <textarea name="caption" value="caption" placeholder="Enter Caption Here"></textarea>
+                <div id = 'closeFriendsGroupSelector' style="display:none">
+                    {% for group in user_groups %}
+                    <input type="checkbox" name="group" value="{{ group.groupName ~ ',' ~ group.groupOwner }}">{{ group.groupName }}
+                    {% endfor %}
+                </div><br>
                 <input type="submit" value="Upload">
             </form>
         </div>
@@ -16,5 +30,6 @@
         {% endif %}
         <br/>
         <a href="/">Go back</a>
+
     </body>
 </html>

@@ -5,10 +5,14 @@ import hashlib
 import pymysql.cursors
 from functools import wraps
 import time
+import insert_photo
+
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
 IMAGES_DIR = os.path.join(os.getcwd(), "images")
+
+
 
 connection = pymysql.connect(host="localhost",
                              user="root",
@@ -18,6 +22,7 @@ connection = pymysql.connect(host="localhost",
                              port=8889,
                              cursorclass=pymysql.cursors.DictCursor,
                              autocommit=True)
+import tools
 
 def login_required(f):
     @wraps(f)
@@ -41,7 +46,13 @@ def home():
 @app.route("/upload", methods=["GET"])
 @login_required
 def upload():
-    return render_template("upload.html")
+    return render_template("upload.html", user_groups=tools._get_current_user_groups())
+
+@app.route("/follow", methods=["GET"])
+@login_required
+def follow_page():
+    followReq = getFollowRequest()
+    return render_template("follow.html", followReq =followReq)
 
 #images which get passed to the image gallery 
 #this send the image with all of it's data too
@@ -130,6 +141,58 @@ def registerAuth():
     error = "An error has occurred. Please try again."
     return render_template("register.html", error=error)
 
+
+@app.route("/follow_req", methods = ["POST"])
+@login_required
+def follow():
+    request_data = request.form
+    username = request_data['username']
+    query = "SELECT * FROM Person WHERE username = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, username)
+    data = cursor.fetchall()
+    if len(data)>0:
+        query = "SELECT * FROM Follow WHERE followeeUsername = %s AND followerUsername = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (username, session["username"]))
+        data = cursor.fetchall()
+        if len(data)>0:
+            error = "Request already sent to %s" % (username)
+            return render_template('follow.html', error=error, followReq = getFollowRequest())
+        else:
+            query = "INSERT INTO Follow VALUES (%s, %s, False); "
+            with connection.cursor() as cursor:
+                cursor.execute(query, (session["username"], username))
+    else:
+        error = "%s is not a valid username." % (username)
+        return render_template('follow.html', error=error, followReq = getFollowRequest())
+    return redirect("/follow")
+
+
+
+def getFollowRequest():
+    query = "SELECT followerUsername FROM Follow WHERE followeeUsername = %s and acceptedfollow = False"
+    with connection.cursor() as cursor:
+        cursor.execute(query, session["username"])
+    data = cursor.fetchall()
+    return data
+
+@app.route("/followAction", methods=["POST"])
+def followAction():
+    request_data = request.form
+    response = request_data["response"]
+    username = request_data["username"]
+    if response == "accept":
+        query = "UPDATE follow SET acceptedfollow = True WHERE followerUsername = %s AND followeeUsername = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (username, session["username"]))
+    else:
+        query = "DELETE FROM follow WHERE followeeUsername = %s and acceptedfollow = False"
+        with connection.cursor() as cursor:
+            cursor.execute(query, session["username"])
+    return redirect("/follow")
+
+
 @app.route("/logout", methods=["GET"])
 def logout():
     session.pop("username")
@@ -138,19 +201,7 @@ def logout():
 @app.route("/uploadImage", methods=["POST"])
 @login_required
 def upload_image():
-    if request.files:
-        image_file = request.files.get("imageToUpload", "")
-        image_name = image_file.filename
-        filepath = os.path.join(IMAGES_DIR, image_name)
-        image_file.save(filepath)
-        query = "INSERT INTO photo (timestamp, filePath) VALUES (%s, %s)"
-        with connection.cursor() as cursor:
-            cursor.execute(query, (time.strftime('%Y-%m-%d %H:%M:%S'), image_name))
-        message = "Image has been successfully uploaded."
-        return render_template("upload.html", message=message)
-    else:
-        message = "Failed to upload image."
-        return render_template("upload.html", message=message)
+    return insert_photo.upload_image()
 
 if __name__ == "__main__":
     app.run(debug = True)
