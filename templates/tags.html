@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tags</title>
+    <style type="text/css">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tag Requests</h1>
+        {% if error %}
+            {{ error }}
+        {% endif %}
+        {% if user_tags %}
+            <div>
+                <table>
+                    {% for tag in user_tags %}
+                    <!--<h1>TESTER</h1>-->
+                       <tr>
+                           <td><img src="/image/{{tag.filepath}}" width="300"/></td>
+                          <td>
+                              <form action="/tag_action" method="POST">
+                                  <input type="hidden" name="response" value="accept">
+                                  <input type="hidden" name="photoid" value="{{ tag.photoid }}">
+                                  <input type="submit" value="Accept">
+                              </form>
+                          </td>
+                           <td>
+                               <form action="/tag_action" method="POST">
+                                   <input type="hidden" name="response" value="decline">
+                                   <input type="hidden" name="photoid" value="{{ tag.photoid }}">
+                                   <input type="submit" value="Decline">
+                               </form>
+                           </td>
+
+                       </tr>
+                    {% endfor %}
+                    </table>
+            </div>
+        {% endif %}
+    <br>
+        <a href="/">Go back</a>
+
+</body>
+</html>

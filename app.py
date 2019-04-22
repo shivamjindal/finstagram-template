@@ -6,12 +6,9 @@ import pymysql.cursors
 from functools import wraps
 import time
 
-
 app = Flask(__name__)
 app.secret_key = "super secret key"
 IMAGES_DIR = os.path.join(os.getcwd(), "images")
-
-
 
 connection = pymysql.connect(host="localhost",
                              user="root",
@@ -23,6 +20,7 @@ connection = pymysql.connect(host="localhost",
                              autocommit=True)
 import tools
 import insert_photo
+import tag_logic
 
 
 def login_required(f):
@@ -55,9 +53,9 @@ def follow_page():
     followReq = getFollowRequest()
     return render_template("follow.html", followReq =followReq)
 
-#images which get passed to the image gallery 
+#images which get passed to the image gallery
 #this send the image with all of it's data too
-#A photo is visible to a user U if either 
+#A photo is visible to a user U if either
 #   U has been accepted as a follower by teh owner of the photo or
 #   The photo is shared with a CloseFriendGroup to which U belongs
 @app.route("/images", methods=["GET"])
@@ -66,7 +64,7 @@ def images():
     posts = {}
     username = session['username']
     #do everything in one query SELECT how to do a query on this elements username
-    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC" 
+    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC"
     query2 = "SELECT * FROM Photo JOIN Tag Using (photoID) JOIN Person USING (username) WHERE Photo.photoID = tag.photoID AND acceptedTag = 1"
     with connection.cursor() as cursor:
         cursor.execute(query, (username, username, username))
@@ -74,9 +72,9 @@ def images():
     for post in data:
          with connection.cursor() as cursor:
             cursor.execute(query2)
-         tags = cursor.fetchall() 
+         tags = cursor.fetchall()
     #     print(tags)
-         posts[post]= tags #is this how i add the tags of each photo to the post? ,
+         posts[post] = tags #is this how i add the tags of each photo to the post? ,
     #print(data)
     return render_template("images.html", images=data, posts = posts)
 
@@ -127,14 +125,14 @@ def registerAuth():
         hashedPassword = hashlib.sha256(plaintextPasword.encode("utf-8")).hexdigest()
         firstName = requestData["fname"]
         lastName = requestData["lname"]
-        
+
         try:
             with connection.cursor() as cursor:
                 query = "INSERT INTO person (username, password, fname, lname) VALUES (%s, %s, %s, %s)"
                 cursor.execute(query, (username, hashedPassword, firstName, lastName))
         except pymysql.err.IntegrityError:
             error = "%s is already taken." % (username)
-            return render_template('register.html', error=error)    
+            return render_template('register.html', error=error)
 
         return redirect(url_for("login"))
 
@@ -169,13 +167,13 @@ def follow():
     return redirect("/follow")
 
 
-
 def getFollowRequest():
     query = "SELECT followerUsername FROM Follow WHERE followeeUsername = %s and acceptedfollow = False"
     with connection.cursor() as cursor:
         cursor.execute(query, session["username"])
     data = cursor.fetchall()
     return data
+
 
 @app.route("/followAction", methods=["POST"])
 def followAction():
@@ -202,6 +200,17 @@ def logout():
 @login_required
 def upload_image():
     return insert_photo.upload_image()
+
+@app.route("/view_tags", methods=["GET"])
+@login_required
+def view_tags():
+    user_tag_requests = tag_logic.get_user_tag_requests()
+    return render_template("tags.html", user_tags=user_tag_requests)
+
+@app.route("/tag_action", methods=["POST"])
+def tag_action():
+    tag_logic.submit_tag_action()
+    return redirect("/view_tags")
 
 if __name__ == "__main__":
     app.run(debug = True)
