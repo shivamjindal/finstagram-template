@@ -64,8 +64,7 @@ def images():
     posts = {}
     username = session['username']
     #do everything in one query SELECT how to do a query on this elements username
-<<<<<<< HEAD
-    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC" 
+    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC"
     # query2 = "SELECT * FROM Photo JOIN Tag Using (photoID) JOIN Person USING (username) WHERE Photo.photoID = tag.photoID AND acceptedTag = 1"
     query2 = "SELECT * FROM Photo NAUTRAL JOIN Person WHERE Person.username = Photo.photoOwner"
     with connection.cursor() as cursor:
@@ -80,21 +79,7 @@ def images():
     # #print(data)
     # return render_template("images.html", images=data, posts = posts)
     return render_template("images.html", images=data)
-=======
-    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC"
-    query2 = "SELECT * FROM Photo JOIN Tag Using (photoID) JOIN Person USING (username) WHERE Photo.photoID = tag.photoID AND acceptedTag = 1"
-    with connection.cursor() as cursor:
-        cursor.execute(query, (username, username, username))
-    data = cursor.fetchall()
-    for post in data:
-         with connection.cursor() as cursor:
-            cursor.execute(query2)
-         tags = cursor.fetchall()
-    #     print(tags)
-         posts[post] = tags #is this how i add the tags of each photo to the post? ,
-    #print(data)
-    return render_template("images.html", images=data, posts = posts)
->>>>>>> 2bc521c9e26e3b64a7b3565c594116dfdb9d52ba
+
 
 @app.route("/image/<image_name>", methods=["GET"])
 def image(image_name):
