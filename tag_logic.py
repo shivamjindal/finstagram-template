@@ -18,7 +18,7 @@ def submit_tag_action():
         with connection.cursor() as cursor:
             cursor.execute(query, (photoid, session["username"]))
     elif response == "decline":
-        query = "delete from tag where photoid = %s and username = %s"
+        query = "update tag set acceptedTag = 0 where photoid = %s and username = %s"
         with connection.cursor() as cursor:
             cursor.execute(query, (photoid, session["username"]))
 
