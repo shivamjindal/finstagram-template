@@ -21,6 +21,7 @@ connection = pymysql.connect(host="localhost",
 import tools
 import insert_photo
 import tag_logic
+import comments
 
 
 def login_required(f):
@@ -214,6 +215,12 @@ def view_tags():
 def tag_action():
     tag_logic.submit_tag_action()
     return redirect("/view_tags")
+
+@app.route("/comment", methods=["POST"])
+@login_required
+def post_comment():
+    comments.submit_comment()
+    return redirect("/images")
 
 if __name__ == "__main__":
     app.run(debug = True)

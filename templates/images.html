@@ -22,6 +22,12 @@
                  {% for post in posts %} 
                    First name: {{post.fname}} Last name: {{post.lname}} <br>
                  {% endfor %}
+                <form action = "/comment" method="POST">
+                    <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
+                     <input type="hidden" name="photoid" value="{{ image.photoID }}">
+
+                    <input type="submit" value="Post Comment"><br>
+                </form>
             </p>
             {% endfor %}
         </div>
