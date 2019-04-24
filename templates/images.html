@@ -11,9 +11,9 @@
                 <h3>Image below by: {{ image.photoOwner }} </h3>
                 <img src="/image/{{image.filePath}}" width="300"/>
                 
-                <p> photoID: {{ image.photoID }} <br> caption: {{ image.caption }}
-                <br> timestamp: {{ image.timestamp }} 
-                <br> people tagged: 
+                <p> <u> photoID:</u>  {{ image.photoID }} <br> <u> caption:</u> {{ image.caption }}
+                <br> <u>timestamp:</u>  {{ image.timestamp }} 
+                <br> <u>people tagged:</u> <br>
                 {% for post in posts %} 
                   {% for subpost in post %} 
                   {% if image.photoID == subpost.photoID%}
