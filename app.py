@@ -62,24 +62,26 @@ def follow_page():
 @app.route("/images", methods=["GET"])
 @login_required
 def images():
-    posts = {}
+    posts= []
     username = session['username']
     #do everything in one query SELECT how to do a query on this elements username
-    query = "SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC"
+    query = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
     # query2 = "SELECT * FROM Photo JOIN Tag Using (photoID) JOIN Person USING (username) WHERE Photo.photoID = tag.photoID AND acceptedTag = 1"
-    query2 = "SELECT * FROM Photo NAUTRAL JOIN Person WHERE Person.username = Photo.photoOwner"
+    query2 = "SELECT * FROM Person NATURAL JOIN Tag NATURAL JOIN Photo WHERE Photo.photoID = %s"
     with connection.cursor() as cursor:
         cursor.execute(query, (username, username, username))
     data = cursor.fetchall()
-    # for post in data:
-    #      with connection.cursor() as cursor:
-    #         cursor.execute(query2, post["photoID"])
-    #      tags = cursor.fetchall() 
-    # #     print(tags)
-    #      posts[post]= tags #is this how i add the tags of each photo to the post? ,
-    # #print(data)
-    # return render_template("images.html", images=data, posts = posts)
-    return render_template("images.html", images=data)
+    #print(data)
+    for post in data:
+          with connection.cursor() as cursor:
+            cursor.execute(query2, (post["photoID"]))
+          tags = cursor.fetchall() 
+          #print(tags)
+          posts.append(tags) #is this how i add the tags of each photo to the post? ,
+     #print(data)
+    print(posts)
+    return render_template("images.html", images=data, posts = posts)
+    #return render_template("images.html", images=data)
 
 
 @app.route("/image/<image_name>", methods=["GET"])
