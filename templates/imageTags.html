@@ -10,14 +10,6 @@
                    First name: {{subpost.fname}} Last name: {{subpost.lname}} <br>
                    {% endfor %}
                  {% endfor %}
-                <form action = "/comment" method="POST">
-                    <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
-                     <input type="hidden" name="photoid" value="{{ image.photoID }}">
-
-                    <input type="submit" value="Post Comment"><br>
-                </form>
-            </p>
-            {% endfor %}
         </div>
         <a href="/">Go back</a>
     </body>
