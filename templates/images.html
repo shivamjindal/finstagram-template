@@ -3,6 +3,7 @@
         <title>Finstagram</title>
     </head>
     <body>
+      <center> 
         <h1>Image Gallery</h1>
         <div>
              
@@ -12,7 +13,14 @@
                 
                 <p> photoID: {{ image.photoID }} <br> caption: {{ image.caption }}
                 <br> timestamp: {{ image.timestamp }} 
-                <br> people tagged: <a href="/imageTags"> People Tagged</a>
+                <br> people tagged: 
+                {% for post in posts %} 
+                  {% for subpost in post %} 
+                  {% if image.photoID == subpost.photoID%}
+                   First name: {{subpost.fname}} Last name: {{subpost.lname}} <br>
+                   {%endif%}
+                   {% endfor %}
+                 {% endfor %}
                 <form action = "/comment" method="POST">
                     <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
                      <input type="hidden" name="photoid" value="{{ image.photoID }}">
@@ -23,5 +31,6 @@
             {% endfor %}
         </div>
         <a href="/">Go back</a>
+      </center>
     </body>
 </html>

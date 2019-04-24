@@ -67,7 +67,7 @@ def images():
     #do everything in one query SELECT how to do a query on this elements username
     query = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
     # query2 = "SELECT * FROM Photo JOIN Tag Using (photoID) JOIN Person USING (username) WHERE Photo.photoID = tag.photoID AND acceptedTag = 1"
-    query2 = "SELECT * FROM Person NATURAL JOIN Tag NATURAL JOIN Photo WHERE Photo.photoID = %s"
+    query2 = "SELECT * FROM Person NATURAL JOIN Tag NATURAL JOIN Photo WHERE Photo.photoID = %s AND acceptedTag = TRUE"
     with connection.cursor() as cursor:
         cursor.execute(query, (username, username, username))
     data = cursor.fetchall()
