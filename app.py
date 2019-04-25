@@ -52,7 +52,7 @@ def upload():
 @login_required
 def follow_page():
     followReq = getFollowRequest()
-    return render_template("follow.html", followReq =followReq)
+    return render_template("follow.html", followReq =followReq, following = getFollowing())
 
 @app.route("/friends", methods=["GET"])
 @login_required
@@ -223,14 +223,14 @@ def follow():
         data = cursor.fetchall()
         if len(data)>0:
             error = "Request already sent to %s" % (username)
-            return render_template('follow.html', error=error, followReq = getFollowRequest())
+            return render_template('follow.html', error=error, followReq = getFollowRequest(), following = getFollowing())
         else:
             query = "INSERT INTO Follow VALUES (%s, %s, False); "
             with connection.cursor() as cursor:
                 cursor.execute(query, (session["username"], username))
     else:
         error = "%s is not a valid username." % (username)
-        return render_template('follow.html', error=error, followReq = getFollowRequest())
+        return render_template('follow.html', error=error, followReq = getFollowRequest(), following = getFollowing())
     return redirect("/follow")
 
 
@@ -240,6 +240,32 @@ def getFollowRequest():
         cursor.execute(query, session["username"])
     data = cursor.fetchall()
     return data
+
+def getFollowing():
+    query = "SELECT followeeUsername FROM Follow WHERE followerUsername = %s and acceptedfollow = True"
+    with connection.cursor() as cursor:
+        cursor.execute(query, session["username"])
+    data = cursor.fetchall()
+    return data
+
+@app.route("/unfollow", methods = ["POST"])
+@login_required
+def unfollow():
+    request_data = request.form
+    print(request_data)
+    username = request_data["username"]
+    query = "DELETE FROM follow WHERE followerUsername = %s AND followeeUsername = %s AND acceptedfollow = True"
+    print(query)
+    with connection.cursor() as cursor:
+        print(session['username'], username)
+        cursor.execute(query, (session["username"], username))
+    query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+    with connection.cursor() as cursor:
+            cursor.execute(query, (session["username"], username))
+    return redirect("/follow")
+
+
+
 
 
 @app.route("/followAction", methods=["POST"])
