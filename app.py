@@ -54,6 +54,11 @@ def follow_page():
     followReq = getFollowRequest()
     return render_template("follow.html", followReq =followReq)
 
+@app.route("/create", methods=["GET"])
+@login_required
+def create():
+    return render_template("create.html")
+
 #images which get passed to the image gallery
 #this send the image with all of it's data too
 #A photo is visible to a user U if either
@@ -145,6 +150,61 @@ def registerAuth():
     error = "An error has occurred. Please try again."
     return render_template("register.html", error=error)
 
+@app.route("/create_group", methods = ["POST"])
+@login_required
+def createGroup():
+    request_data = request.form
+    groupName = request_data['groupName']
+    query = "SELECT * FROM CloseFriendGroup WHERE groupName = %s AND groupOwner = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (groupName, session['username']))
+    data = cursor.fetchall()
+    if len(data)>0:
+        error = "Friend group with name : %s already exist" % (groupName)
+        return render_template('create.html', error=error)
+    else:
+        query = "INSERT INTO CloseFriendGroup VALUES (%s, %s); "
+        with connection.cursor() as cursor:
+            cursor.execute(query, (groupName, session["username"]))
+        query = "INSERT INTO Belong VALUES (%s, %s, %s); "
+        with connection.cursor() as cursor:
+            cursor.execute(query, (groupName, session["username"], session["username"]))
+    return redirect("/create")
+
+@app.route("/friendGroup", methods = ["POST"])
+@login_required
+def friendGroup():
+    request_data = request.form
+    username = request_data['username']
+    group = request_data['groupName']
+    query = "SELECT * FROM Person WHERE username = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, username)
+    data = cursor.fetchall()
+    if len(data)>0:
+        query = "SELECT * FROM Belong WHERE username = %s AND groupName = %s AND groupOwner = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, username, group, session["username"])
+        data = cursor.fetchall()
+        if len(data)>0:
+            error = "User: %s already in group: %s" %(username) %(group)
+            return render_template('follow.html', error=error, friendGroups = getFriendGroups())
+        else:
+            query = "INSERT INTO Belong Values(%s, %s, %s)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, group, session["username"], username)
+    else:
+        error = "%s is not a valid username." % (username)
+        return render_template('follow.html', error=error, friendGroups = getFriendGroups())
+    return redirect("/friends")
+
+
+def getFriendGroups():
+    query = "SELECT groupName FROM Belong WHERE username = %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, session["username"])
+    data = cursor.fetchall()
+    return data
 
 @app.route("/follow_req", methods = ["POST"])
 @login_required

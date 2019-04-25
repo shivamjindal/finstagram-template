@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Friend Groups</title>
+    <style type="text/css">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Create Group</h1>
+        <div>
+            <form action="/create_group" method="POST">
+                <input type="text" name="groupName" placeholder="groupName" required/>
+                <br/>
+                <input type="submit" value="Create">
+            </form>
+        </div>
+    {% if error %}
+        {{ error }}
+    {% endif %}
+
+    <a href="/">Go back</a>
+</body>
+</html>
