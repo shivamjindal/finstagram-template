@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Friend Groups</title>
+    <style type="text/css">
+        table, th, td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Group</h1>
+        <div>
+            <form action="/create_group" method="POST">
+                <input type="text" name="groupName" placeholder="groupName" required/>
+                <br/>
+                <input type="submit" value="Create">
+            </form>
+        </div>
+    <br/>
+    <h1>Friend Groups</h1>
+        {% if friendGroup %}
+            <div>
+                <table>
+                    {% for group in friendGroup %}
+                       <tr>
+                           <td>{{ group.groupName }}</td>
+                          <td>
+                              <form action="/friendGroup" method="POST">
+                                  <input type="text" name="username" placeholder="Username" required>
+                                  <input type="hidden" name="groupName" value="{{ group.groupName }}">
+                                  <input type="submit" value="Add">
+                              </form>
+                          </td>
+                       </tr>
+                    {% endfor %}
+                    </table>
+            </div>
+        {% endif %}
+     {% if error %}
+        {{ error }}
+    {% endif %}
+    <br/>
+    <a href="/">Go back</a>
+
+</body>
+</html>

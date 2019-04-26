@@ -48,6 +48,28 @@
                     </table>
             </div>
         {% endif %}
+        <br>
+        <br>
+        {% if following %}
+            <div>
+                <h2>Currently Following</h2>
+
+                <table>
+                    {% for followee in following %}
+                       <tr>
+                           <td>{{ followee.followeeUsername }}</td>
+                          <td>
+                              <form action="/unfollow" method="POST">
+                                  <input type="hidden" name="username" value="{{ followee.followeeUsername }}">
+                                  <input type="submit" value="Unfollow">
+                              </form>
+                          </td>
+
+                       </tr>
+                    {% endfor %}
+                    </table>
+            </div>
+        {% endif %}
     <br>
         <a href="/">Go back</a>
 
