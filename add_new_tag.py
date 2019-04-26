@@ -29,7 +29,7 @@ def new_tag():
 				# print("Does the local number above match tag number below")
 				# print(photoID)
 				if(currentPhoto == photoID):
-					print(here)
+					print("here")
 					isVisible= 1
 					with connection.cursor() as cursor:
 						cursor.execute(query, (tagged_name, photoID, 0))
