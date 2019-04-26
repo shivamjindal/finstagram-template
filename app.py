@@ -166,6 +166,27 @@ def createGroup():
             cursor.execute(query, (groupName, session["username"], session["username"]))
     return redirect("/friends")
 
+@app.route("/removeFriend", methods = ["POST"])
+@login_required
+def removeFriend():
+    request_data = request.form
+    username = request_data['username']
+    group = request_data['groupName']
+    query = "SELECT * FROM Belong WHERE username = %s AND groupName = %s AND username != %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (username, group, session["username"]))
+    data = cursor.fetchall()
+    if len(data) == 0:
+        error = "The username: "+ username+" is not in the friend group or is the group Owner"
+        return render_template('friends.html', error=error, friendGroup = getFriendGroups())
+    else:
+        query = "DELETE FROM Belong WHERE username = %s and groupName = %s "
+        with connection.cursor() as cursor:
+            cursor.execute(query, (username, group))
+
+    return redirect("/friends")
+
+
 @app.route("/friendGroup", methods = ["POST"])
 @login_required
 def friendGroup():
@@ -177,9 +198,9 @@ def friendGroup():
         cursor.execute(query, username)
     data = cursor.fetchall()
     if len(data)>0:
-        query = "SELECT * FROM Belong WHERE username = %s AND groupName = %s AND groupOwner = %s"
+        query = "SELECT * FROM Belong WHERE (username = %s or username = %s) AND groupName = %s AND groupOwner = %s"
         with connection.cursor() as cursor:
-            cursor.execute(query, (username, group, session["username"]))
+            cursor.execute(query, (username, session["username"], group, session["username"]))
         data = cursor.fetchall()
         if len(data)>0:
             error = "User: {} already in group: {}".format(username, group)
@@ -195,9 +216,9 @@ def friendGroup():
 
 
 def getFriendGroups():
-    query = "SELECT groupName FROM Belong WHERE username = %s"
+    query = "SELECT groupName FROM Belong WHERE username = %s AND groupOwner = %s"
     with connection.cursor() as cursor:
-        cursor.execute(query, session["username"])
+        cursor.execute(query, (session["username"], session["username"]))
     data = cursor.fetchall()
     return data
 
