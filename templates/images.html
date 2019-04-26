@@ -6,7 +6,9 @@
       <center>
         <h1>Image Gallery</h1>
         <div>
-             
+              {% if error %}
+                    {{ error }}
+              {% endif %}
             {% for image in images %} 
                 <h3>Image below by: {{ image.photoOwner }} </h3>
                 <img src="/image/{{image.filePath}}" width="300"/>
@@ -28,9 +30,6 @@
                           <br>
                           <input type="submit" value="Tag by username">
                       </form>
-                   {% if error %}
-                        {{ error }}
-                    {% endif %}
                 <form action = "/comment" method="POST">
                     <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
                      <input type="hidden" name="photoid" value="{{ image.photoID }}">
