@@ -16,20 +16,16 @@ def new_tag():
         #if they are tagging someone else
         else:
 		#if query is visiable to the tagged_name then the result (tagged_name, photoID, 0)
-			query2 = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
+			query2 = 'SELECT Photo.photoID FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE))'			
 			with connection.cursor() as cursor:
 				cursor.execute(query2, (tagged_name, tagged_name, tagged_name))
 			vPhoto = cursor.fetchall()
-			isVisible= 0; #true/false to determine if the person can view the photo
-			#print(vPhoto)
+			isVisible= 0 #true/false to determine if the person can view the photo
+			
 			for photo in vPhoto:
-				#print(photo)
-				# print(photo['photoID'])
-				currentPhoto = photo['photoID']
-				# print("Does the local number above match tag number below")
-				# print(photoID)
-				if(currentPhoto == photoID):
-					print("here")
+				currentPhoto = int(photo['photoID'])
+				intID = int(photoID)
+				if(currentPhoto == intID):
 					isVisible= 1
 					with connection.cursor() as cursor:
 						cursor.execute(query, (tagged_name, photoID, 0))

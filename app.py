@@ -81,7 +81,7 @@ def images():
             cursor.execute(query2, (post["photoID"]))
           tags = cursor.fetchall() 
           posts.append(tags) 
-    #print(posts)
+    print(posts)
     return render_template("images.html", images=data, posts = posts)
 
 @app.route("/image/<image_name>", methods=["GET"])
