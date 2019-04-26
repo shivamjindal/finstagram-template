@@ -21,6 +21,13 @@
                    {%endif%}
                    {% endfor %}
                  {% endfor %}
+                  <form action="/add_tag" method="POST">
+                  <h4>Tag someone in the photo:</h4>
+                          <input type="text" name="username" placeholder="username" required/>
+                          <input type="hidden" id="photoID" name="photoID" value= {{image.photoID}}>
+                          <br>
+                          <input type="submit" value="Tag by username">
+                      </form>
                 <form action = "/comment" method="POST">
                     <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
                      <input type="hidden" name="photoid" value="{{ image.photoID }}">
