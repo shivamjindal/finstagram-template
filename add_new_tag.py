@@ -31,7 +31,7 @@ def new_tag():
 						cursor.execute(query, (tagged_name, photoID, 0))
 			if(isVisible == 0):
 				#        error = "Friend group with name : %s already exist" % (groupName)
-				error = "You cannot tag : %s to this picture" % (tagged_name)
+				error = "You cannot tag: %s to this picture because they cannot see the photo" % (tagged_name)
 				return render_template('images.html', error=error)
 
 
