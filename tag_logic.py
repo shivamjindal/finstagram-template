@@ -3,7 +3,7 @@ import tools
 
 def get_user_tag_requests():
     result = None
-    query = "select photoid, filepath from photo natural join tag where username = %s and acceptedTag !=True"
+    query = "select photoid, filepath from photo natural join tag where username = %s and acceptedTag != True"
     with connection.cursor() as cursor:
         cursor.execute(query, session["username"])
         result = cursor.fetchall()
