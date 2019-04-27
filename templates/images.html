@@ -27,7 +27,7 @@
                 {% for post in posts %}
                   {% for subpost in post %}
                   {% if image.photoID == subpost.commentPhotoID%}
-                   First name: {{subpost.commentUser}} Last name: {{subpost.commentText}} <br>
+                   user: {{subpost.commentUser}} comment: {{subpost.commentText}} <br>
                    {%endif%}
                    {% endfor %}
                  {% endfor %}
