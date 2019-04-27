@@ -41,7 +41,7 @@
                 {% for post in posts %}
                   {% for subpost in post %}
                   {% if image.photoID == subpost.likePhotoID%}
-                   Liked by: {{subpost.likeUser}} <br>
+                   {{subpost.likeUser}} <br>
                    {%endif%}
                    {% endfor %}
                  {% endfor %}
