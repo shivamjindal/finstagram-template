@@ -31,6 +31,12 @@
                    {%endif%}
                    {% endfor %}
                  {% endfor %}
+                  <form action = "/comment" method="POST">
+                    <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
+                     <input type="hidden" name="photoid" value="{{ image.photoID }}">
+
+                    <input type="submit" value="Post Comment"><br>
+                </form>
                     <br> <u>Likes:</u> <br>
                 {% for post in posts %}
                   {% for subpost in post %}
@@ -40,19 +46,13 @@
                    {% endfor %}
                  {% endfor %}
                   <form action="/add_tag" method="POST">
-                  <h4>Tag someone in the photo:</h4>
+                  <h4>Tag someone in the above photo:</h4>
                           <input type="text" name="username" placeholder="username" required/>
                           <input type="hidden" id="photoID" name="photoID" value= {{image.photoID}}>
                           <br>
                           <input type="submit" value="Tag by username">
                       </form>
-                <form action = "/comment" method="POST">
-                    <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
-                     <input type="hidden" name="photoid" value="{{ image.photoID }}">
-
-                    <input type="submit" value="Post Comment"><br>
-                </form>
-            <form action = "/like" method="POST">
+                           <form action = "/like" method="POST">
                      <input type="hidden" name="photoid" value="{{ image.photoID }}">
                     {% if error %}
                     Duplicate entries {% endif %}

@@ -360,10 +360,21 @@ def tag_action():
     tag_logic.submit_tag_action()
     return redirect("/view_tags")
 #search poster 
-@app.route("/search_user_images", methods=["POST","GET"])
+@app.route("/search_user_images", methods=["POST", "GET"])
 @login_required
 def search_user_images():
-    print("in app.py")
+    if request.form:
+        request_data = request.form
+        searcher = session["username"]
+        poster = request_data["poster"]
+        query = "SELECT * FROM Photo Where photoOwner = %s"
+        print("creating query")
+        with connection.cursor() as cursor:
+            cursor.execute(query, (poster))
+        user_images = cursor.fetchall()
+        print(user_images)
+        if(user_images != 0):
+            return render_template("images.html", images = user_images)
     return render_template("search_poster.html")
     
 @app.route("/comment", methods=["POST"])
