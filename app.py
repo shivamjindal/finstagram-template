@@ -394,7 +394,7 @@ def search_tag_images():
         request_data = request.form
         searcher = session["username"]
         person_tagged = request_data["tagged"]
-        query = "SELECT photoID, timestamp, filePath, photoOwner, caption FROM Photo NATURAL JOIN Tag Where Tag.username = %s"
+        query = "SELECT photoID, timestamp, filePath, photoOwner, caption FROM Photo NATURAL JOIN Tag Where Tag.username = %s AND acceptedTag = 1"
         #print("creating query")
         with connection.cursor() as cursor:
             cursor.execute(query, (person_tagged))
