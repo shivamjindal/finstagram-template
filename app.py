@@ -187,12 +187,10 @@ def removeFriend():
         with connection.cursor() as cursor:
             cursor.execute(query, (session["username"], username))
         noCommonGroup = (len(cursor.fetchall())==0)
-        print(noCommonGroup)
         query = "SELECT Follow.followerUsername From Follow WHERE Follow.followerUsername = %s and Follow.followeeUsername = %s"
         with connection.cursor() as cursor:
             cursor.execute(query, (username, session["username"]))
         if (len(cursor.fetchall()) == 0 and noCommonGroup):
-            print("got to delete")
             query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
             with connection.cursor() as cursor:
                 cursor.execute(query, (session["username"], username))
