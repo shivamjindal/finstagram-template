@@ -86,7 +86,8 @@ def images():
     for post in data:
           with connection.cursor() as cursor:
             cursor.execute(query2, (post["photoID"]))
-            postInfo = cursor.fetchall()
+            postInfo = cursor.fetchall() # gets the tags for each post. we call it post info bc we will add other stuff
+                                         # (we will be adding likes and comments for this post too)
 
             # want to turn info for each post into a list instead of a tuple
             if not postInfo:
