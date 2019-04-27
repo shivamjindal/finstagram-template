@@ -31,12 +31,6 @@
                    {%endif%}
                    {% endfor %}
                  {% endfor %}
-                  <form action = "/comment" method="POST">
-                    <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
-                     <input type="hidden" name="photoid" value="{{ image.photoID }}">
-
-                    <input type="submit" value="Post Comment"><br>
-                </form>
                     <br> <u>Likes:</u> <br>
                 {% for post in posts %}
                   {% for subpost in post %}
@@ -45,6 +39,13 @@
                    {%endif%}
                    {% endfor %}
                  {% endfor %}
+                  <form action = "/comment" method="POST">
+                    <textarea id = 'comment' name="comment" rows="4" cols="50" placeholder="Comment..."></textarea>
+                     <input type="hidden" name="photoid" value="{{ image.photoID }}">
+
+                    <input type="submit" value="Post Comment"><br>
+                </form>
+
                   <form action="/add_tag" method="POST">
                   <h4>Tag someone in the above photo:</h4>
                           <input type="text" name="username" placeholder="username" required/>
