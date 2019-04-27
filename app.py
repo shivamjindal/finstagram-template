@@ -187,7 +187,7 @@ def removeFriend():
         with connection.cursor() as cursor:
             cursor.execute(query, (session["username"], username))
         if (len(cursor.fetchall()) == 0):
-            query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+            query = "DELETE FROM Tag WHERE username = %s AND photoID in select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) AS t"
             with connection.cursor() as cursor:
                 cursor.execute(query, (session["username"], username))
     return redirect("/friends")
@@ -280,7 +280,7 @@ def unfollow():
     with connection.cursor() as cursor:
         print(session['username'], username)
         cursor.execute(query, (session["username"], username))
-    query = "SELECT groupName FROM Belong WHERE username = %s and groupName in (SELECT groupName FROM Belong WHERE username = %s) as t"
+    query = "SELECT groupName FROM Belong WHERE username = %s and groupName in (SELECT groupName FROM Belong WHERE username = %s)"
     with connection.cursor() as cursor:
             cursor.execute(query, (session["username"], username))
     if (len(cursor.fetchall()) == 0):
