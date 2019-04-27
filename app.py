@@ -24,7 +24,6 @@ import tools
 import insert_photo
 import tag_logic
 import add_new_tag
-import search_user
 import comments
 import likes
 
