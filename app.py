@@ -73,8 +73,9 @@ def images():
     posts= []
     username = session['username']
     query = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
-    query2 = "SELECT * FROM Person NATURAL JOIN Tag NATURAL JOIN Photo WHERE Photo.photoID = %s AND acceptedTag = True"
-    commentsquery = "SELECT photoID, username, commentText, photoOwner, filepath, comment.timestamp from Comment join photo using (photoID) where photo.photoid = %s order by comment.timestamp ASC"
+    query2 = "SELECT Photo.photoID, fname, lname FROM Person NATURAL JOIN Tag NATURAL JOIN Photo WHERE Photo.photoID = %s AND acceptedTag = True"
+    commentsquery = "SELECT photoID as commentPhotoID, username as commentUser, commentText from Comment join photo using (photoID) where photo.photoid = %s order by comment.timestamp ASC"
+
     with connection.cursor() as cursor:
         cursor.execute(query, (username, username, username))
     data = cursor.fetchall()
@@ -82,12 +83,19 @@ def images():
           with connection.cursor() as cursor:
             cursor.execute(query2, (post["photoID"]))
             tags = cursor.fetchall()
-            print("== tags == \n", tags)
-            # print("== ")
+            if not tags:
+                tags = []
+            cursor.execute(commentsquery, post["photoID"])
+            comments = cursor.fetchall()
+            if comments:
+                for i in comments:
+                    tags.append(i)
+
             posts.append(tags)
-            print("== posts ==\n", posts)
-            # posts.append()
-    #print(posts)
+
+    for i in posts:
+        for j in i:
+            print(j)
     return render_template("images.html", images=data, posts = posts)
 
 @app.route("/image/<image_name>", methods=["GET"])

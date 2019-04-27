@@ -5,6 +5,8 @@ def submit_comment():
     comment = request_data["comment"]
     photoid = request_data["photoid"]
     query = "insert into comment (username, photoID, commentText) VALUES (%s, %s, %s)"
-    with connection.cursor() as cursor:
-        cursor.execute(query, (session["username"], photoid, comment))
-
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, (session["username"], photoid, comment))
+    except:
+        print("fail silently for duplicate entries or other db failures")
