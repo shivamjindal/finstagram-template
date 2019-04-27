@@ -86,20 +86,30 @@ def images():
     for post in data:
           with connection.cursor() as cursor:
             cursor.execute(query2, (post["photoID"]))
-            tags = cursor.fetchall()
-            if not tags:
-                tags = []
+            postInfo = cursor.fetchall()
+
+            # want to turn info for each post into a list instead of a tuple
+            if not postInfo:
+                postInfo = []
+
+            # comment logic (shiv)
             cursor.execute(commentsquery, post["photoID"])
             comments = cursor.fetchall()
+            # append each comment into the info about posts
             if comments:
                 for i in comments:
-                    tags.append(i)
+                    postInfo.append(i)
+
+            # post like logic (shiv)
             cursor.execute(likesquery, post["photoID"])
             likes = cursor.fetchall()
+            # append each like into info about posts
             if likes:
                 for i in likes:
-                    tags.append(i)
-            posts.append(tags)
+                    postInfo.append(i)
+
+            # add all that post info into our posts data
+            posts.append(postInfo)
     return render_template("images.html", images=data, posts = posts)
 
 @app.route("/image/<image_name>", methods=["GET"])
