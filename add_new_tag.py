@@ -21,14 +21,15 @@ def new_tag():
 				cursor.execute(query2, (tagged_name, tagged_name, tagged_name))
 			vPhoto = cursor.fetchall()
 			isVisible= 0; #true/false to determine if the person can view the photo
-			#print(vPhoto)
+			print(vPhoto)
 			for photo in vPhoto:
-				#print(photo)
-				# print(photo['photoID'])
-				currentPhoto = photo['photoID']
-				# print("Does the local number above match tag number below")
-				# print(photoID)
-				if(currentPhoto == photoID):
+				print(photo)
+				print(photo['photoID'])
+				currentPhoto = int(photo['photoID'])
+				print("Does the local number above match tag number below")
+				print(photoID)
+				intphoto = int(photoID)
+				if(currentPhoto == intphoto):
 					print("here")
 					isVisible= 1
 					with connection.cursor() as cursor:
