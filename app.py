@@ -22,6 +22,7 @@ import tools
 import insert_photo
 import tag_logic
 import add_new_tag
+import search_user
 import comments
 
 
@@ -81,7 +82,7 @@ def images():
             cursor.execute(query2, (post["photoID"]))
           tags = cursor.fetchall() 
           posts.append(tags) 
-    print(posts)
+    #print(posts)
     return render_template("images.html", images=data, posts = posts)
 
 @app.route("/image/<image_name>", methods=["GET"])
@@ -303,7 +304,13 @@ def view_tags():
 def tag_action():
     tag_logic.submit_tag_action()
     return redirect("/view_tags")
-
+#search poster 
+@app.route("/search_user_images", methods=["POST","GET"])
+@login_required
+def search_user_images():
+    print("in app.py")
+    return search_user.search_dir()
+    
 @app.route("/comment", methods=["POST"])
 @login_required
 def post_comment():

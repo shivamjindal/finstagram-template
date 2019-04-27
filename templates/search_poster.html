@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>Search by Poster</title>
+    </head>
+    <body>
+        <h1>Search by Poster</h1>
+        <div>
+            <p> Enter the user whose photos you wish to see </p>
+            <form action="/search_user_images" method="post">
+                < <input type="text" name="poster" placeholder="poster" required/>
+                <br>
+                 <input type="submit" value="Search this username">
+            </form>
+        </div>
+        {% if error %}
+            {{ error }}
+        {% endif %}
+    </body>
+</html>
