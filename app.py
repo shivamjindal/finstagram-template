@@ -183,13 +183,22 @@ def removeFriend():
         query = "DELETE FROM Belong WHERE username = %s and groupName = %s "
         with connection.cursor() as cursor:
             cursor.execute(query, (username, group))
-        query = "SELECT Follow.followerUsername From Follow WHERE Follow.followerUsername = %s and Follow.followeeUsername = %s"
+        query = "SELECT groupName FROM Belong WHERE username = %s and groupName in (SELECT groupName FROM Belong WHERE username = %s)"
         with connection.cursor() as cursor:
             cursor.execute(query, (session["username"], username))
-        if (len(cursor.fetchall()) == 0):
-            query = "DELETE FROM Tag WHERE username = %s AND photoID in select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) AS t"
+        noCommonGroup = (len(cursor.fetchall())==0)
+        print(noCommonGroup)
+        query = "SELECT Follow.followerUsername From Follow WHERE Follow.followerUsername = %s and Follow.followeeUsername = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (username, session["username"]))
+        if (len(cursor.fetchall()) == 0 and noCommonGroup):
+            print("got to delete")
+            query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
             with connection.cursor() as cursor:
                 cursor.execute(query, (session["username"], username))
+            query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, (username, session["username"]))
     return redirect("/friends")
 
 
