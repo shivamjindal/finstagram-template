@@ -54,8 +54,6 @@
                       </form>
                            <form action = "/like" method="POST">
                      <input type="hidden" name="photoid" value="{{ image.photoID }}">
-                    {% if error %}
-                    Duplicate entries {% endif %}
                     <input type="submit" value="Like this Photo"><br>
                 </form>
             </p>
