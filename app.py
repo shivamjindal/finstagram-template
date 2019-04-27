@@ -167,6 +167,40 @@ def createGroup():
             cursor.execute(query, (groupName, session["username"], session["username"]))
     return redirect("/friends")
 
+@app.route("/removeFriend", methods = ["POST"])
+@login_required
+def removeFriend():
+    request_data = request.form
+    username = request_data['username']
+    group = request_data['groupName']
+    query = "SELECT * FROM Belong WHERE username = %s AND groupName = %s AND username != %s"
+    with connection.cursor() as cursor:
+        cursor.execute(query, (username, group, session["username"]))
+    data = cursor.fetchall()
+    if len(data) == 0:
+        error = "The username: "+ username+" is not in the friend group or is the group Owner"
+        return render_template('friends.html', error=error, friendGroup = getFriendGroups())
+    else:
+        query = "DELETE FROM Belong WHERE username = %s and groupName = %s "
+        with connection.cursor() as cursor:
+            cursor.execute(query, (username, group))
+        query = "SELECT groupName FROM Belong WHERE username = %s and groupName in (SELECT groupName FROM Belong WHERE username = %s)"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (session["username"], username))
+        noCommonGroup = (len(cursor.fetchall())==0)
+        query = "SELECT Follow.followerUsername From Follow WHERE Follow.followerUsername = %s and Follow.followeeUsername = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(query, (username, session["username"]))
+        if (len(cursor.fetchall()) == 0 and noCommonGroup):
+            query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, (session["username"], username))
+            query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+            with connection.cursor() as cursor:
+                cursor.execute(query, (username, session["username"]))
+    return redirect("/friends")
+
+
 @app.route("/friendGroup", methods = ["POST"])
 @login_required
 def friendGroup():
@@ -182,7 +216,7 @@ def friendGroup():
         with connection.cursor() as cursor:
             cursor.execute(query, (username, group, session["username"]))
         data = cursor.fetchall()
-        if len(data)>0:
+        if len(data)>0 or username == session["username"]:
             error = "User: {} already in group: {}".format(username, group)
             return render_template('friends.html', error=error, friendGroup = getFriendGroups())
         else:
@@ -196,9 +230,9 @@ def friendGroup():
 
 
 def getFriendGroups():
-    query = "SELECT groupName FROM Belong WHERE username = %s"
+    query = "SELECT groupName FROM Belong WHERE username = %s AND groupOwner = %s"
     with connection.cursor() as cursor:
-        cursor.execute(query, session["username"])
+        cursor.execute(query, (session["username"], session["username"]))
     data = cursor.fetchall()
     return data
 
@@ -254,8 +288,12 @@ def unfollow():
     with connection.cursor() as cursor:
         print(session['username'], username)
         cursor.execute(query, (session["username"], username))
-    query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+    query = "SELECT groupName FROM Belong WHERE username = %s and groupName in (SELECT groupName FROM Belong WHERE username = %s)"
     with connection.cursor() as cursor:
+            cursor.execute(query, (session["username"], username))
+    if (len(cursor.fetchall()) == 0):
+        query = "DELETE FROM Tag WHERE username = %s AND photoID in (select * from (SELECT photoID from tag NATURAL JOIN Photo where photoOwner = %s) as t)"
+        with connection.cursor() as cursor:
             cursor.execute(query, (session["username"], username))
     return redirect("/follow")
 
