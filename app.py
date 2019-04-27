@@ -5,6 +5,8 @@ import hashlib
 import pymysql.cursors
 from functools import wraps
 import time
+from pymysql import IntegrityError
+
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -24,6 +26,7 @@ import tag_logic
 import add_new_tag
 import search_user
 import comments
+import likes
 
 
 def login_required(f):
@@ -75,6 +78,7 @@ def images():
     query = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
     query2 = "SELECT Photo.photoID, fname, lname FROM Person NATURAL JOIN Tag NATURAL JOIN Photo WHERE Photo.photoID = %s AND acceptedTag = True"
     commentsquery = "SELECT photoID as commentPhotoID, username as commentUser, commentText from Comment join photo using (photoID) where photo.photoid = %s order by comment.timestamp ASC"
+    likesquery = "SELECT photoID as likePhotoID, username as likeUser from Liked join photo using (photoID) where photo.photoid = %s order by liked.timestamp ASC"
 
     with connection.cursor() as cursor:
         cursor.execute(query, (username, username, username))
@@ -90,12 +94,12 @@ def images():
             if comments:
                 for i in comments:
                     tags.append(i)
-
+            cursor.execute(likesquery, post["photoID"])
+            likes = cursor.fetchall()
+            if likes:
+                for i in likes:
+                    tags.append(i)
             posts.append(tags)
-
-    for i in posts:
-        for j in i:
-            print(j)
     return render_template("images.html", images=data, posts = posts)
 
 @app.route("/image/<image_name>", methods=["GET"])
@@ -366,6 +370,15 @@ def search_user_images():
 @login_required
 def post_comment():
     comments.submit_comment()
+    return redirect("/images")
+
+@app.route("/like", methods=["POST"])
+@login_required
+def post_like():
+    try:
+        likes.submit_like()
+    except IntegrityError as e:
+        print("Going to fail silently for attempting to insert duplicate entries")
     return redirect("/images")
 
 if __name__ == "__main__":
