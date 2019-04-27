@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>Search by Tag</title>
+    </head>
+    <body>
+        <h1>Search by Tag</h1>
+        <div>
+            <p> Enter the username to see the photos where this person is tagged in</p>
+            <form action="/search_tag_images" method="post">
+                < <input type="text" name="tagged" placeholder="tagged" required/>
+                <br>
+                 <input type="submit" value="Search this tag">
+            </form>
+        </div>
+        {% if error %}
+            {{ error }}
+        {% endif %}
+         <a href="/">Go back</a>
+    </body>
+</html>

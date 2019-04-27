@@ -386,6 +386,23 @@ def search_user_images():
         if(user_images != 0):
             return render_template("images.html", images = user_images)
     return render_template("search_poster.html")
+
+@app.route("/search_tag_images", methods=["POST", "GET"])
+@login_required
+def search_tag_images():
+    if request.form:
+        request_data = request.form
+        searcher = session["username"]
+        person_tagged = request_data["tagged"]
+        query = "SELECT photoID, timestamp, filePath, photoOwner, caption FROM Photo NATURAL JOIN Tag Where Tag.username = %s"
+        #print("creating query")
+        with connection.cursor() as cursor:
+            cursor.execute(query, (person_tagged))
+        user_images = cursor.fetchall()
+        #print(user_images)
+        if(user_images != 0):
+            return render_template("images.html", images = user_images)
+    return render_template("search_tag.html")
     
 @app.route("/comment", methods=["POST"])
 @login_required
