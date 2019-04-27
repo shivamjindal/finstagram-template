@@ -308,12 +308,9 @@ def getFollowing():
 @login_required
 def unfollow():
     request_data = request.form
-    print(request_data)
     username = request_data["username"]
     query = "DELETE FROM follow WHERE followerUsername = %s AND followeeUsername = %s AND acceptedfollow = True"
-    print(query)
     with connection.cursor() as cursor:
-        print(session['username'], username)
         cursor.execute(query, (session["username"], username))
     query = "SELECT groupName FROM Belong WHERE username = %s and groupName in (SELECT groupName FROM Belong WHERE username = %s)"
     with connection.cursor() as cursor:
