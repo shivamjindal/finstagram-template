@@ -364,7 +364,7 @@ def tag_action():
 @login_required
 def search_user_images():
     print("in app.py")
-    return search_user.search_dir()
+    return render_template("search_poster.html")
     
 @app.route("/comment", methods=["POST"])
 @login_required
