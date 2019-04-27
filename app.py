@@ -198,11 +198,11 @@ def friendGroup():
         cursor.execute(query, username)
     data = cursor.fetchall()
     if len(data)>0:
-        query = "SELECT * FROM Belong WHERE (username = %s or username = %s) AND groupName = %s AND groupOwner = %s"
+        query = "SELECT * FROM Belong WHERE username = %s AND groupName = %s AND groupOwner = %s"
         with connection.cursor() as cursor:
-            cursor.execute(query, (username, session["username"], group, session["username"]))
+            cursor.execute(query, (username, group, session["username"]))
         data = cursor.fetchall()
-        if len(data)>0:
+        if len(data)>0 or username == session["username"]:
             error = "User: {} already in group: {}".format(username, group)
             return render_template('friends.html', error=error, friendGroup = getFriendGroups())
         else:
