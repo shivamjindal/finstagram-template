@@ -63,7 +63,6 @@ def follow_page():
 def friends():
     groups = getFriendGroups()
     return render_template("friends.html", friendGroup = groups)
-
 #images which get passed to the image gallery
 #this send the image with all of it's data too
 #A photo is visible to a user U if either
@@ -366,6 +365,12 @@ def view_tags():
 def tag_action():
     tag_logic.submit_tag_action()
     return redirect("/view_tags")
+
+# @app.route("/images", methods=["GET"])
+# @login_required
+# def visiblePhoto():
+#     query = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
+
 #search poster 
 @app.route("/search_user_images", methods=["POST", "GET"])
 @login_required
@@ -374,10 +379,11 @@ def search_user_images():
         request_data = request.form
         searcher = session["username"]
         poster = request_data["poster"]
-        query = "SELECT * FROM Photo Where photoOwner = %s"
-        print("creating query")
+        query = "SELECT * FROM Photo Where photoOwner = %s AND photoID IN (SELECT Photo.photoID FROM  Photo, Belong, Share Where belong.username = %s AND belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID FROM Photo, Follow  WHERE (photoOwner = %s) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE))) ORDER BY Timestamp DESC"
+        #query2 = 'SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM  Photo, Belong, Share Where belong.username = %s and belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID, timestamp, filePath, photoOwner, caption FROM Photo, Follow  WHERE (photoOwner = %s ) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE)) ORDER BY Timestamp DESC'
+        #print("creating query")
         with connection.cursor() as cursor:
-            cursor.execute(query, (poster))
+            cursor.execute(query, (poster, searcher, searcher, searcher))
         user_images = cursor.fetchall()
         print(user_images)
         if(user_images != 0):
@@ -391,7 +397,7 @@ def search_tag_images():
         request_data = request.form
         searcher = session["username"]
         person_tagged = request_data["tagged"]
-        query = "SELECT photoID, timestamp, filePath, photoOwner, caption FROM Photo NATURAL JOIN Tag Where Tag.username = %s AND acceptedTag = 1"
+        query = "SELECT photoID FROM Photo NATURAL JOIN Tag Where Tag.username = %s AND acceptedTag = 1 AND photoID IN (SELECT Photo.photoID FROM  Photo, Belong, Share Where belong.username = %s AND belong.groupOwner = share.groupOwner AND Belong.groupName = share.groupName AND photo.photoID = share.photoID UNION (SELECT Photo.photoID FROM Photo, Follow  WHERE (photoOwner = %s) or (followerUsername = %s AND photoOwner = followeeUsername AND acceptedfollow = TRUE))) ORDER BY Timestamp DESC"
         #print("creating query")
         with connection.cursor() as cursor:
             cursor.execute(query, (person_tagged))

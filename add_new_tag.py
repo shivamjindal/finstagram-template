@@ -23,19 +23,19 @@ def new_tag():
 			isVisible= 0; #true/false to determine if the person can view the photo
 			print(vPhoto)
 			for photo in vPhoto:
-				print(photo)
-				print(photo['photoID'])
+				#print(photo)
+				#print(photo['photoID'])
 				currentPhoto = int(photo['photoID'])
-				print("Does the local number above match tag number below")
-				print(photoID)
+				#print("Does the local number above match tag number below")
+				#print(photoID)
 				intphoto = int(photoID)
 				if(currentPhoto == intphoto):
-					print("here")
+					#print("here")
 					isVisible= 1
 					with connection.cursor() as cursor:
 						cursor.execute(query, (tagged_name, photoID, 0))
 			if(isVisible == 0):
-				return render_template('home.html')
+				return render_template('/home.html')
 
 
 	return render_template('/images.html')
